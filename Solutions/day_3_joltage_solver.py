@@ -20,24 +20,32 @@ def highest_joltage(joltage_line):
     return current_highest
 
 def highest_joltage_by_12(joltage_line):
-    # now we need to find the highest joltage of numbers with 12 digits builded from the inout
-    current_highest = 0
-    joltage_list = list(joltage_line)
-    # loop trough the joltage items
-    for idx, joltage in enumerate(joltage_list):
-        current_sum = 0
-        for cx in range(1,11-idx):
-            sub_joltage_list = joltage_list[idx + 1 + cx:len(joltage_list)]
-            for joltage_second in sub_joltage_list:
-                current_sum += int(joltage + joltage_second);
-                if current_sum > current_highest:
-                    current_highest = current_sum
-    return current_highest
+    # compute the highest joltage using exactly twelve digits (in order) from the line
+    target_length = 12
+    digits = [d for d in joltage_line if d.isdigit()]
+
+    if len(digits) <= target_length:
+        return int("".join(digits)) if digits else 0
+
+    removals = len(digits) - target_length
+    stack = []
+
+    for digit in digits:
+        while removals and stack and stack[-1] < digit:
+            stack.pop()
+            removals -= 1
+        stack.append(digit)
+
+    if removals:
+        stack = stack[:-removals]
+
+    result_digits = stack[:target_length]
+    return int("".join(result_digits))
 
 def joltage_sum(joltage_lines):
     sum = 0
     for line in joltage_lines:
-        sum += highest_joltage(line)
+        sum += highest_joltage_by_12(line)
     return sum
 
 def main():
